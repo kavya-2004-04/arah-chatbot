@@ -4,7 +4,7 @@ import "./Chatbot.css";
 const Chatbot = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
-    { sender: "bot", text: "👋 Hi! I'm ArahBot. Ask about Arah Infotech's services, careers, or contact info!" }
+    { sender: "bot", text: "🤖 Welcome to ArahBot! 🚀\nAsk me anything about Arah Infotech: services, careers, or company details. How can I help you today?" }
   ]);
   const [userInput, setUserInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);

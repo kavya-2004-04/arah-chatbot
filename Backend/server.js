@@ -71,29 +71,58 @@ const isGibberish = (text) => {
 };
 
 const responseTemplates = {
-    email: { triggers: ["email", "mail"], response: "Our email: ops@arahinfotech.net" },
-  phone: { triggers: ["phone", "number", "call"], response: "Call us at: +91 89198 01095 or +91 63042 44117" },
-  location: { 
-    triggers: ["where", "location", "address"], 
-    response: `Arah Infotech is located at:\n2nd Floor, Spline Arcade,\nAyyappa Society Main Road,\nHyderabad, Telangana-500081` 
+  greeting: {
+    triggers: ["hi", "hello", "hey"],
+    response: "👋 Hello! I'm ArahBot. How can I help you today? Ask about our services, careers, or company info!"
   },
-  // ===== UPDATED SERVICES TEMPLATE =====
+  howareyou: {
+    triggers: ["how are you", "how r u", "how are u", "how's it going"],
+    response: "😊 Thanks for asking! I'm here to help you. How can I assist you today?"
+  },
+  email: { triggers: ["email", "mail"], response: "📧 You can reach us at: ops@arahinfotech.net" },
+  phone: { triggers: ["phone", "number", "call"], response: "📞 Call us at: +91 89198 01095 or +91 63042 44117" },
+  location: { 
+    triggers: ["where", "location", "address", "find you", "where are you located", "where it is situated"], 
+    response: `📍 Arah Infotech is located at:\n2nd Floor, Spline Arcade,\nAyyappa Society Main Road,\nHyderabad, Telangana-500081` 
+  },
   services: { 
     triggers: ["service", "offer", "what do you do"], 
-    response: `We specialize in:\n- Web Development\n- Artificial Intelligence\n- Digital Marketing\n- Cloud Security` 
+    response: `💼 We specialize in:\n- Web Development\n- Artificial Intelligence\n- Digital Marketing\n- Cloud Security` 
   },
-  // ===== UPDATED CLIENTS TEMPLATE =====
   clients: {
     triggers: ["client", "customer", "partner"],
-    response: "Our clients include Google, Intel, and Amazon."
-  },
-  weather: {
-    triggers: ["weather"],
-    response: "I specialize in Arah Infotech services. For weather, please check a weather app."
+    response: "🤝 Our clients include Google, Intel, and Amazon."
   },
   founding: {
-    triggers: ["established", "founded", "start date", "when was arah created"],
-    response: "Arah Infotech was founded in May 2025."
+    triggers: [
+      "established", "founded", "start date", "when was arah created", "when did you start",
+      "when is arah started", "when did arah begin", "when was arah founded", "started"
+    ],
+    response: "🎉 Arah Infotech was founded in May 2025."
+  },
+  about: {
+    triggers: ["about", "who are you", "what is arah", "company info", "tell me about arah"],
+    response: "🌟 Arah Infotech delivers cutting-edge AI and software solutions, empowering businesses globally with innovative technology for digital transformation and growth."
+  },
+  vision: {
+    triggers: ["vision", "goal", "future"],
+    response: "🚀 Our vision is to be a global leader in innovative software and AI solutions, shaping the future of business through technology."
+  },
+  mission: {
+    triggers: ["mission", "purpose"],
+    response: "🎯 Our mission is to empower organizations through intelligent technology solutions that solve real-world problems and unlock new opportunities for growth."
+  },
+  careers: {
+    triggers: ["career", "job", "opening", "vacancy", "apply", "work"],
+    response: "💼 To apply for roles, visit our Careers page. Current openings: Full Stack Developer, UI/UX Designer, Cloud Security Engineer."
+  },
+  confidential: {
+    triggers: ["hr", "manager", "ceo", "cto", "director", "owner", "founder", "head", "leadership"],
+    response: "🔒 Sorry, details about HR, managers, or leadership are confidential. I can only share company information."
+  },
+  social: {
+    triggers: ["linkedin", "youtube", "facebook", "instagram", "social media", "social links"],
+    response: "🌐 You can find our social media links in the footer of our website at https://arahinfotech.net."
   }
 };
 
@@ -126,28 +155,32 @@ const enforceResponseRules = (userMessage, botResponse) => {
 
 app.post("/chat", async (req, res) => {
   const userMessage = req.body.message?.trim();
+  const lowerMessage = userMessage.toLowerCase();
 
   if (!userMessage || isGibberish(userMessage)) {
-    return res.json({ reply: "I couldn't understand. Ask about services, careers, or contact info." });
+    return res.json({ reply: "🤔 I couldn't understand. Ask about services, careers, or contact info!" });
   }
 
-  const lowerMessage = userMessage.toLowerCase();
+  // Check for founding-related queries first
+  if (responseTemplates.founding.triggers.some(t => lowerMessage.includes(t))) {
+    return res.json({ reply: responseTemplates.founding.response });
+  }
+
+  // Check other templates
   for (const template of Object.values(responseTemplates)) {
-    if (template.triggers.some(t => lowerMessage.includes(t))) {
-      const reply = template.response.includes("Visit our") 
-        ? { reply: template.response, redirect: template.response.includes("Services") ? '/services' : '/contact' }
-        : { reply: template.response };
-      return res.json(reply);
+    if (template !== responseTemplates.founding && template.triggers.some(t => lowerMessage.includes(t))) {
+      return res.json({ reply: template.response });
     }
   }
 
   try {
     const model = genAI.getGenerativeModel({ 
-      model: "gemini-1.5-flash",
+      model: "gemini-pro", // <-- FIXED MODEL NAME
       systemInstruction: SYSTEM_PROMPT,
       generationConfig: {
         temperature: 0,
-        maxOutputTokens: 150
+        maxOutputTokens: 150,
+        topP:0.9
       }
     });
     const result = await model.generateContent(userMessage);
@@ -204,19 +237,16 @@ if (lowerMessage.includes("client")) {
     res.json({ reply: text });
   } catch (error) {
     console.error("API Error:", error);
-    if (lowerMessage.includes("address")) {
-      return res.json({ 
-        reply: responseTemplates.location.response,
-        redirect: '/contact'
-      });
+
+    // Fallback for known queries
+    for (const template of Object.values(responseTemplates)) {
+      if (template.triggers.some(t => lowerMessage.includes(t))) {
+        return res.json({ reply: template.response });
+      }
     }
-    if (lowerMessage.includes("service")) {
-      return res.json({ 
-        reply: responseTemplates.services.response,
-        redirect: '/services'
-      });
-    }
-    res.json({ reply: "Please email ops@arahinfotech.net for help." });
+
+    // Generic fallback
+    return res.json({ reply: "😔 Sorry, something went wrong. Please try again later!" });
   }
 });
 
