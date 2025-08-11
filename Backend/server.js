@@ -72,8 +72,8 @@ const isGibberish = (text) => {
 
 const responseTemplates = {
   greeting: {
-    triggers: ["hi", "hello", "hey"],
-    response: "👋 Hello! I'm ArahBot. How can I help you today? Ask about our services, careers, or company info!"
+    triggers: ["hi", "hello", "hey","hlo"],
+    response: "👋 Hello! How can I assist you today?"
   },
   howareyou: {
     triggers: ["how are you", "how r u", "how are u", "how's it going"],
@@ -87,11 +87,11 @@ const responseTemplates = {
   },
   services: { 
     triggers: ["service", "offer", "what do you do"], 
-    response: `💼 We specialize in:\n- Web Development\n- Artificial Intelligence\n- Digital Marketing\n- Cloud Security` 
+    response: `💼 We specialize in:\n- Web Development\n- Artificial Intelligence\n- Digital Marketing\n- Cloud Security\- Machine Learning\n- App Development` 
   },
   clients: {
     triggers: ["client", "customer", "partner"],
-    response: "🤝 Our clients include Google, Intel, and Amazon."
+    response: "🤝 Our clients include Google, Intel, Amazon, Sony, IBM, Samsung, etc.To know more about our clients, you can visit our About page."
   },
   founding: {
     triggers: [
@@ -113,7 +113,7 @@ const responseTemplates = {
     response: "🎯 Our mission is to empower organizations through intelligent technology solutions that solve real-world problems and unlock new opportunities for growth."
   },
   careers: {
-    triggers: ["career", "job", "opening", "vacancy", "apply", "work"],
+    triggers: ["career", "job", "opening", "vacancy", "apply", "work","latest openings", "hiring", "recruitment", "positions", "roles"],
     response: "💼 To apply for roles, visit our Careers page. Current openings: Full Stack Developer, UI/UX Designer, Cloud Security Engineer."
   },
   confidential: {
