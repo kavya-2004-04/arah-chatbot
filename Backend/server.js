@@ -2,6 +2,9 @@ const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
+const fetch = require('node-fetch');
+const cheerio = require('cheerio');
+
 
 dotenv.config();
 const app = express();
@@ -116,6 +119,30 @@ const responseTemplates = {
     triggers: ["career", "job", "opening", "vacancy", "apply", "work","latest openings", "hiring", "recruitment", "positions", "roles"],
     response: "💼 To apply for roles, visit our Careers page. Current openings: Full Stack Developer, UI/UX Designer, Cloud Security Engineer."
   },
+   web_development: {
+    triggers: ["web development", "website", "frontend", "backend"],
+    response: "💡 Sure! We design and develop websites from start to finish—both how they look 🎨 and how they work ⚙️—so they’re smooth, responsive, and user-friendly. Check out more on our Services page 📄."
+  },
+  app_development: {
+    triggers: ["app development", "mobile app", "application"],
+    response: "📱💻 Absolutely! We create software apps for mobiles and desktops—from designing 🎨 and coding 💻 to testing 🧪 and launching 🚀. We work on Android, iOS, and Windows platforms. Check our Services page for more"
+  },
+  digital_marketing: {
+    triggers: ["digital marketing", "seo", "social media"],
+    response: "📢 Absolutely! We help promote products and services through social media 📱, search engines 🔍, email 📩, and websites 🌐—all to reach more people, engage them, and boost sales 💰. Check our Services page for details!"
+  },
+  ai: {
+    triggers: ["artificial intelligence", "ai"],
+    response: "🤖 Exactly! We use AI to make machines think and learn like humans—helping them automate tasks ⚙️, recognize speech 🎤, and analyze data 📊. You can explore more on our Services page!"
+  },
+  ml: {
+    triggers: ["machine learning", "ml"],
+    response: "📊 Sure! We use Machine Learning to help systems learn and get better with data—powering things like recommendations 🎯, fraud detection 🔍, and image recognition 🖼️. More on our Services page!"
+  },
+  cloud: {
+    triggers: ["cloud security", "cloud protection"],
+    response: "We provide protection for data, applications, and services hosted in the cloud from threats and unauthorized access. Services include encryption, access control, and threat detection."
+  },
   confidential: {
     triggers: ["hr", "manager", "ceo", "cto", "director", "owner", "founder", "head", "leadership"],
     response: "🔒 Sorry, details about HR, managers, or leadership are confidential. I can only share company information."
@@ -124,6 +151,7 @@ const responseTemplates = {
     triggers: ["linkedin", "youtube", "facebook", "instagram", "social media", "social links"],
     response: "🌐 You can find our social media links in the footer of our website at https://arahinfotech.net."
   }
+
 };
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
@@ -172,6 +200,19 @@ app.post("/chat", async (req, res) => {
       return res.json({ reply: template.response });
     }
   }
+// 1. Check ALL templates (including new ones) FIRST
+  for (const template of Object.values(responseTemplates)) {
+    if (template.triggers.some(t => lowerMessage.includes(t))) {
+      return res.json({ reply: template.response });
+    }
+  }
+  const matchedTemplate = Object.values(responseTemplates).find(template => 
+  template.triggers.some(trigger => lowerMessage.includes(trigger))
+);
+
+if (matchedTemplate) {
+  return res.json({ reply: matchedTemplate.response });
+}
 
   try {
     const model = genAI.getGenerativeModel({ 
@@ -186,7 +227,7 @@ app.post("/chat", async (req, res) => {
     const result = await model.generateContent(userMessage);
     const response = await result.response;
     let text = response.text();
- if (userMessage.toLowerCase().includes("service")) {
+/*if (userMessage.toLowerCase().includes("service")) {
       text = "We offer:\n- Web Development\n- Artificial Intelligence\n- Digital Marketing\n- Cloud Security";
       if (response.redirect) delete response.redirect;
     }
@@ -194,7 +235,7 @@ app.post("/chat", async (req, res) => {
     // Force exact clients response
     if (userMessage.toLowerCase().includes("client")) {
       text = "Our clients include Google, Intel, and Amazon.";
-    }
+    }*/
     // Apply enforcement rules
     text = enforceResponseRules(userMessage, text);
 

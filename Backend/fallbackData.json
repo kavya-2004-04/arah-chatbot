@@ -1,0 +1,29 @@
+{
+  "greetings": [
+    "Hi! How can I help you today?",
+    "Hello! What would you like to know about Arah Infotech?"
+  ],
+  "thanks": [
+    "You're welcome! Happy to help.",
+    "Anytime! Let me know if you have more questions."
+  ],
+  "goodbye": [
+    "Goodbye! Have a great day!",
+    "See you soon! Feel free to chat anytime."
+  ],
+  "services": [
+    "We offer Web Development, Artificial Intelligence, Digital Marketing, and Cloud Security services.",
+    "Our services include Web and App Development, AI/ML, Digital Marketing, and Cloud Security."
+  ],
+  "careers": [
+    "You can find job openings on our Careers page.",
+    "Visit our Careers page for current job openings like Full Stack Developer, UI/UX Designer, and Cloud Security Engineer."
+  ],
+  "contact": [
+    "You can contact us at ops@arahinfotech.net or call +91 89198 01095.",
+    "Reach us via email ops@arahinfotech.net or phone +91 63042 44117."
+  ],
+  "default": [
+    "Sorry, I didn't get that. You can ask about our services, careers, or contact details."
+  ]
+}
